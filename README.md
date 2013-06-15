@@ -17,7 +17,9 @@
 * Run with `node app.js`
 * Go to `http://localhost: 3000`
 
-If you have any ideas that can complement this code please [contact me] (http://gasparbelandria.com).
+[See how run] (http://twitter-compare.aws.af.cm/)
 
 ### Note:
 Speak more than one brand, does not mean who are speaking well of her.
+
+If you have any ideas that can complement this code please [contact me] (http://gasparbelandria.com).
