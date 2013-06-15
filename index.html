@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Twitter - Compare - Created for GasparBelandria.com</title>
+    <style>
+      body { font: 100% Helvetica, Arial, sans-serif }
+      ul.percentage { width: 95%; float: left}
+      ul.percentage li { display: block; width: 0; padding: 10px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; float: left; clear: left }
+      ul.percentage li.option_1 { background: #ff0066; color: #fff}
+      ul.percentage li.option_2 { background: #000; color: #fff}
+      ul.percentage li span { float: right; display: block}
+      ul.tweets { float: left; clear: both}
+      #stream { float: left; clear: both; width: 100%}
+      #stream ul { list-style: none}
+      #stream ul li { float: left; clear: left; width: 100%; border-bottom: 1px solid #ccc;: 5px; padding: 5px 0}
+      #stream ul li:nth-child(even) { background: #f8f5f6; }
+      #stream ul li img { float: left; margin-right: 10px; padding: 5px}
+      #option_1rs { width: 45%; float: left }
+      #option_2rs { width: 45%; float: right }
+      #content {display:none;}
+    </style>
+	<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+</head>
+<body>
+	<section>
+		<form>
+			<h3 style='text-align:center;'>Type your company/product and compare in real time with other</h3>
+			<div style='clear:both'></div>
+			<div style='float:left; width:45%; text-align:right; padding:10px;'>
+				<input type="text" id="opt1" placeholder="You company/product…">
+			</div>
+			<div style='float:left; width:45%; padding:10px;'>
+				<input type="text" id="opt2" placeholder="You competence…">
+			</div>
+		</form>
+	</section>
+	<div id='content'>
+		<ul class="percentage">
+			<li class="option_1">
+				<span>0</span>
+			</li>
+			<li class="option_2">
+				<span>0</span>
+			</li>
+		</ul>
+		<section id="stream">
+			<section id="option_1rs">
+				<h2 id="option_1title">Option #1</h2>
+				<ul></ul>	
+			</section>
+			<section id="option_2rs">
+				<h2 id="option_2title">Option #2</h2>
+				<ul></ul>
+			</section>
+		</section>
+	</div>
+    <script src="/socket.io/socket.io.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>    
+    <script>
+      var socket = io.connect();
+      jQuery(function ($) { 
+		var form = $('form');
+        var opt1 = $('#opt1');
+        var opt2 = $('#opt2');
+        var opts = [];
+        $('#opt1, #opt2').keypress(function(event){
+        	if(event.which  == 13){
+	        	if ($('#opt1').val()!='' && $('#opt2').val()!=''){
+		          	$('#opt1, #opt2').attr('disabled','true');
+		          	opts.push($('#opt1').val());
+		          	opts.push($('#opt2').val());
+					socket.emit('opts', opts, function (tweet) {
+						if (tweet) {
+							$('#content').css('display','block')
+					        var option_1Counter = $('li.option_1'),
+					            option_2Counter = $('li.option_2'),
+					            
+					            option_1CounterPercentage = $('li.option_1 span'),
+					            option_2CounterPercentage = $('li.option_2 span'),
+					            
+					            option_1title = $('#option_1title'),
+					            option_2title = $('#option_2title'),
+					            
+					            option_1rsList = $('#option_1rs ul'),
+					            option_2rsList = $('#option_2rs ul');
+					        socket.on('percentages', function (data) {			
+					        	option_1title.text($('#opt1').val() + ' ' + Math.round(data.opt1 * 10) / 10 + '%');		 
+					        	option_2title.text($('#opt2').val() + ' ' + Math.round(data.opt2 * 10) / 10 + '%');		          	
+					          	option_1Counter.css("width", data.opt1 + '%');
+					          	option_1CounterPercentage.text($('#opt1').val() + ' ' + Math.round(data.opt1 * 10) / 10 + '%');
+					          	option_2Counter.css("width", data.opt2 + '%');
+					          	option_2CounterPercentage.text($('#opt2').val() + ' ' + Math.round(data.opt2 * 10) / 10 + '%');
+					        });
+					        socket.on('option1', function (data) {
+					          $('<img />')
+					            .attr('src', data.avatar)
+					            .load(function(){
+					              option_1rsList
+					                .prepend($('<li>')
+					                .prepend($('<p>').text(data.user + ': ' + data.text))
+					                .prepend($(this)));
+					            });
+					        });
+					        socket.on('option2', function (data) {
+					          $('<img />')
+					            .attr('src', data.avatar)
+					            .load(function(){
+					              option_2rsList
+					                .prepend($('<li>')
+					                .prepend($('<p>').text(data.user + ': ' + data.text))
+					                .prepend($(this)));
+					            });
+					        });
+						} else {
+							form.prepend('<p>Err !!!</p>');
+						}
+					});
+	        	}else{
+	        		if ($('#opt1').val()=='') $('#opt1').css()
+	        	}
+        	}
+        })
+      });
+    </script>	
+</body>
+</html>
